@@ -1,14 +1,15 @@
-use clap::{Arg, Command};
 use std::error::Error;
 use std::io::{self, BufReader, BufRead};
 use std::fs::File;
-use opencv::types::VectorOfu8;
-//use opencv::imgcodecs::*;
+use clap::{Arg, Command};
+
+use opencv as cv;
+use cv::types::VectorOfu8;
 
 #[derive(Debug)]
-
 pub struct Config{
     file: String,
+    // todo: add more options (color resize?)
 }
 
 type AppResult<T> = Result<T, Box<dyn Error>>;
@@ -16,31 +17,29 @@ type AppResult<T> = Result<T, Box<dyn Error>>;
 
 pub fn run(config: Config) -> AppResult<()>{
         
-    dbg!(&config);
-
+    //dbg!(&config);
     match open(&config.file) {
         Err(err) => eprintln!("{}", err),
 
         Ok(mut file) =>{
             let mut buffer : Vec<u8> = Vec::new();
-            let read_count = file.read_to_end(&mut buffer)?;
-            let result = opencv::imgcodecs::imdecode(&VectorOfu8::from_iter(buffer), opencv::imgcodecs::IMREAD_GRAYSCALE);
-            opencv::highgui::imshow(&config.file, &result?)?;
-            let _key = opencv::highgui::wait_key(0)?;
+            let _read_count = file.read_to_end(&mut buffer)?;
+            let result = cv::imgcodecs::imdecode(&VectorOfu8::from_iter(buffer), cv::imgcodecs::IMREAD_COLOR); // IMREAD_GRAYSCALE);
+            
+            cv::highgui::named_window(&config.file, cv::highgui::WINDOW_KEEPRATIO)?;
+            cv::highgui::imshow(&config.file, &result?)?;
+            let _key = cv::highgui::wait_key(0)?;
+            cv::highgui::destroy_all_windows()?;
         },
     }
-
-//    let result = opencv::imgcodecs::imread(&config.file, opencv::imgcodecs::IMREAD_COLOR);// IMREAD_GRAYSCALE);
-//    opencv::highgui::imshow(&config.file, &result?)?;
-//    let _key = opencv::highgui::wait_key(0)?;
 
     Ok(())
 }
 
 
 pub fn get_args() -> AppResult<Config> {
-    let matches = Command::new("catr")
-        .version("0.1.0")
+    let matches = Command::new("showimg")
+        .version("0.1.2")
         .author("Sam Beskur <sam.beskur@gmail.com>")
         .about("A simple image viewer program.")
         .arg(
