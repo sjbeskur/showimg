@@ -4,7 +4,8 @@ use std::io::{self, BufReader, BufRead};
 use std::fs::File;
 
 //use opencv::highgui::*;
-//use opencv::prelude::*;
+use opencv::prelude::*;
+use opencv::types::VectorOfu8;
 //use opencv::imgcodecs::*;
 
 #[derive(Debug)]
@@ -20,21 +21,30 @@ pub fn run(config: Config) -> AppResult<()>{
         
     dbg!(&config);
 
-    // match open(&config.file) {
-    //     Err(err) => eprintln!("{}", err),
-    //     Ok(file) =>{
-    //         const BUF_LEN : usize = 4096;
-    //         let mut buffer: [u8;BUF_LEN] = [0; BUF_LEN];
-    //         let mut read_count = file.read(&mut buffer)?;
+    println!("attemping to open file: {}", &config.file);
+    match open(&config.file) {
+        Err(err) => eprintln!("{}", err),
 
-    //         opencv::imgcodecs::imdecode(&VectorOfuchar::from_iter(buffer), opencv::imgcodecs::IMREAD_GRAYSCALE);
+        Ok(mut file) =>{
+            println!("all Ok");
 
-    //     },
-    // }
+            //let mut buffer: [u8;BUF_LEN] = [0; BUF_LEN];
+            let mut buffer : Vec<u8> = Vec::new();
+            let read_count = file.read_to_end(&mut buffer)?;
+            println!("read_count: {}", read_count);
 
-    let result = opencv::imgcodecs::imread(&config.file, opencv::imgcodecs::IMREAD_COLOR);// IMREAD_GRAYSCALE);
-    opencv::highgui::imshow(&config.file, &result?)?;
-    let _key = opencv::highgui::wait_key(0)?;
+            let result = opencv::imgcodecs::imdecode(&VectorOfu8::from_iter(buffer), opencv::imgcodecs::IMREAD_GRAYSCALE);
+            opencv::highgui::imshow(&config.file, &result?)?;
+            let _key = opencv::highgui::wait_key(0)?;
+
+        },
+    }
+
+
+
+//    let result = opencv::imgcodecs::imread(&config.file, opencv::imgcodecs::IMREAD_COLOR);// IMREAD_GRAYSCALE);
+//    opencv::highgui::imshow(&config.file, &result?)?;
+//    let _key = opencv::highgui::wait_key(0)?;
 
     Ok(())
 }
