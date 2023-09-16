@@ -1,10 +1,16 @@
 [package]
 name = "showimg"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+show-image = { version = "0.13", features = ["image"], optional = true }
 clap = "4.0.27"
-opencv = "0.74.0"
+opencv = { version = "0.84", optional = true }
+image = { version = "0.24" }
+
+[features]
+default = ["show-image"]
+ocv = ["opencv"]
